@@ -1,6 +1,6 @@
 Loan Prediction
 ================
-Nihit R. Save
+**Nihit R. Save** <br />
 13th February 2017
 
 Dataset: <https://datahack.analyticsvidhya.com/contest/practice-problem-loan-prediction-iii/>
