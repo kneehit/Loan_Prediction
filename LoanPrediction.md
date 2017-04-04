@@ -1,6 +1,6 @@
 Loan Prediction
 ================
-**Nihit R. Save** <br />
+Nihit R. Save
 13th February 2017
 
 Dataset: <https://datahack.analyticsvidhya.com/contest/practice-problem-loan-prediction-iii/>
@@ -145,13 +145,6 @@ To impute missing values we shall use MICE packages. <br /> MICE stands for Mult
 
 ``` r
 library(mice)
-```
-
-    ## Loading required package: Rcpp
-
-    ## mice 2.25 2015-11-09
-
-``` r
 md.pattern(train)
 ```
 
@@ -513,10 +506,11 @@ table(combined$Loan_Amount_Term)
     ##  12  36  60  84 120 180 240 300 360 480 
     ##   3   3   3   7   5  66  14  23 834  23
 
-We notice that Loan Term takes only few distinct values which are the number of months. <br /> Hence we shall represent it in number of years and set it as factor.
+We notice that Loan Term takes only few distinct values which are the number of months. <br /> Hence we shall represent it in number of years and set it as factor. Also we shall set Credit History as factor.
 
 ``` r
-combined$Loan_Term_Year <- as.factor(combined$Loan_Amount_Term/12)
+combined$Loan_Term_Year <- factor(combined$Loan_Amount_Term/12)
+combined$Credit_History <- factor(combined$Credit_History)
 ```
 
 Lets explore how loan amount and loan term are related. Loan Amount and Term
@@ -590,7 +584,7 @@ summary(BaseModel)
     ## Loan_Term_Year25       -1.351e+01  1.455e+03  -0.009  0.99260    
     ## Loan_Term_Year30       -1.393e+01  1.455e+03  -0.010  0.99236    
     ## Loan_Term_Year40       -1.516e+01  1.455e+03  -0.010  0.99169    
-    ## Credit_History          3.171e+00  3.054e-01  10.383  < 2e-16 ***
+    ## Credit_History1         3.171e+00  3.054e-01  10.383  < 2e-16 ***
     ## Property_AreaSemiurban  9.807e-01  2.685e-01   3.652  0.00026 ***
     ## Property_AreaUrban      3.298e-01  2.633e-01   1.253  0.21039    
     ## ---
@@ -604,10 +598,10 @@ summary(BaseModel)
     ## 
     ## Number of Fisher Scoring iterations: 14
 
-From above summary we can see that Number of Dependants,Married,Credit History and Property Area are major deciding factors to predict loan status. <br /> We will use AIC to judge if our next models perform better than our base model.
+From above summary we can see that Number of Dependants,Marriage Status,Credit History and Property Area are major deciding factors to predict loan status. <br /> To judge if our subsequent models perform better than our base model we will use AIC which penalizes models for adding irrelevant variables.
 
 ``` r
-Model2 <- glm(Loan_Status ~ Gender + Married + Dependents + Education + Self_Employed + Ratio + Loan_Term_Year + Credit_History + Property_Area,data = new_train, family = "binomial")
+Model2 <- glm(Loan_Status ~ Gender + Married + Dependents + Education + Self_Employed + ApplicantIncome + CoapplicantIncome + Ratio + Loan_Term_Year + Credit_History + Property_Area,data = new_train, family = "binomial")
 
 
 summary(Model2)
@@ -616,51 +610,54 @@ summary(Model2)
     ## 
     ## Call:
     ## glm(formula = Loan_Status ~ Gender + Married + Dependents + Education + 
-    ##     Self_Employed + Ratio + Loan_Term_Year + Credit_History + 
-    ##     Property_Area, family = "binomial", data = new_train)
+    ##     Self_Employed + ApplicantIncome + CoapplicantIncome + Ratio + 
+    ##     Loan_Term_Year + Credit_History + Property_Area, family = "binomial", 
+    ##     data = new_train)
     ## 
     ## Deviance Residuals: 
     ##     Min       1Q   Median       3Q      Max  
-    ## -2.2447  -0.5085   0.5352   0.6912   2.5168  
+    ## -2.2382  -0.5155   0.5324   0.6994   2.5090  
     ## 
     ## Coefficients:
     ##                          Estimate Std. Error z value Pr(>|z|)    
-    ## (Intercept)             1.165e+01  1.455e+03   0.008 0.993611    
-    ## GenderMale             -4.301e-02  2.949e-01  -0.146 0.884026    
-    ## MarriedYes              5.470e-01  2.588e-01   2.114 0.034556 *  
-    ## Dependents1            -5.613e-01  2.942e-01  -1.908 0.056379 .  
-    ## Dependents2             1.494e-02  3.324e-01   0.045 0.964160    
-    ## Dependents3+           -2.095e-01  4.045e-01  -0.518 0.604546    
-    ## EducationNot Graduate  -3.673e-01  2.535e-01  -1.449 0.147315    
-    ## Self_EmployedYes        1.319e-01  2.814e-01   0.469 0.639246    
-    ## Ratio                  -1.894e-03  2.672e-03  -0.709 0.478422    
-    ## Loan_Term_Year3        -3.086e+01  1.782e+03  -0.017 0.986186    
-    ## Loan_Term_Year5         4.755e-01  1.782e+03   0.000 0.999787    
-    ## Loan_Term_Year7        -1.424e+01  1.455e+03  -0.010 0.992191    
-    ## Loan_Term_Year10       -1.291e+01  1.455e+03  -0.009 0.992921    
-    ## Loan_Term_Year15       -1.367e+01  1.455e+03  -0.009 0.992507    
-    ## Loan_Term_Year20       -1.445e+01  1.455e+03  -0.010 0.992081    
-    ## Loan_Term_Year25       -1.351e+01  1.455e+03  -0.009 0.992596    
-    ## Loan_Term_Year30       -1.391e+01  1.455e+03  -0.010 0.992376    
-    ## Loan_Term_Year40       -1.515e+01  1.455e+03  -0.010 0.991695    
-    ## Credit_History          3.196e+00  3.056e-01  10.456  < 2e-16 ***
-    ## Property_AreaSemiurban  9.870e-01  2.686e-01   3.674 0.000238 ***
-    ## Property_AreaUrban      3.395e-01  2.626e-01   1.293 0.196160    
+    ## (Intercept)             1.168e+01  1.455e+03   0.008  0.99360    
+    ## GenderMale             -3.184e-03  2.994e-01  -0.011  0.99152    
+    ## MarriedYes              5.688e-01  2.604e-01   2.184  0.02895 *  
+    ## Dependents1            -5.813e-01  2.957e-01  -1.966  0.04930 *  
+    ## Dependents2             1.060e-02  3.315e-01   0.032  0.97449    
+    ## Dependents3+           -2.180e-01  4.143e-01  -0.526  0.59880    
+    ## EducationNot Graduate  -3.845e-01  2.574e-01  -1.494  0.13517    
+    ## Self_EmployedYes        1.281e-01  2.831e-01   0.453  0.65088    
+    ## ApplicantIncome        -2.782e-06  2.215e-05  -0.126  0.90003    
+    ## CoapplicantIncome      -4.402e-05  4.410e-05  -0.998  0.31823    
+    ## Ratio                  -5.906e-04  3.339e-03  -0.177  0.85959    
+    ## Loan_Term_Year3        -3.089e+01  1.782e+03  -0.017  0.98617    
+    ## Loan_Term_Year5         5.233e-01  1.781e+03   0.000  0.99977    
+    ## Loan_Term_Year7        -1.426e+01  1.455e+03  -0.010  0.99218    
+    ## Loan_Term_Year10       -1.303e+01  1.455e+03  -0.009  0.99286    
+    ## Loan_Term_Year15       -1.368e+01  1.455e+03  -0.009  0.99250    
+    ## Loan_Term_Year20       -1.452e+01  1.455e+03  -0.010  0.99204    
+    ## Loan_Term_Year25       -1.350e+01  1.455e+03  -0.009  0.99260    
+    ## Loan_Term_Year30       -1.392e+01  1.455e+03  -0.010  0.99237    
+    ## Loan_Term_Year40       -1.516e+01  1.455e+03  -0.010  0.99169    
+    ## Credit_History1         3.172e+00  3.061e-01  10.362  < 2e-16 ***
+    ## Property_AreaSemiurban  9.811e-01  2.686e-01   3.652  0.00026 ***
+    ## Property_AreaUrban      3.299e-01  2.636e-01   1.251  0.21079    
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
     ## (Dispersion parameter for binomial family taken to be 1)
     ## 
     ##     Null deviance: 762.89  on 613  degrees of freedom
-    ## Residual deviance: 564.06  on 593  degrees of freedom
-    ## AIC: 606.06
+    ## Residual deviance: 562.97  on 591  degrees of freedom
+    ## AIC: 608.97
     ## 
     ## Number of Fisher Scoring iterations: 14
 
-AIC decreased when we used Ratio instead of seperate variables and hence we will not consider this model for prediction of test set
+There wasn't any significant change in AIC when we added Ratio variable and also the p-value associated with Ratio is much greater than 0.05. <br /> Thus we can conclude that Ratio is an insignificant variable. <br /> Lets try using log transformed variables.
 
 ``` r
-Model3 <- glm(Loan_Status ~ Gender + Married + Dependents + Education + Self_Employed + Total_Income_Log + Loan_Amount_Log + Loan_Term_Year + Credit_History + Property_Area,data = new_train, family = "binomial")
+Model3 <- glm(Loan_Status ~ Gender + Married + Dependents + Education + Self_Employed + ApplicantIncome + CoapplicantIncome + Total_Income_Log + Loan_Amount_Log + Loan_Term_Year + Credit_History + Property_Area,data = new_train, family = "binomial")
 
 summary(Model3)
 ```
@@ -668,56 +665,115 @@ summary(Model3)
     ## 
     ## Call:
     ## glm(formula = Loan_Status ~ Gender + Married + Dependents + Education + 
-    ##     Self_Employed + Total_Income_Log + Loan_Amount_Log + Loan_Term_Year + 
-    ##     Credit_History + Property_Area, family = "binomial", data = new_train)
+    ##     Self_Employed + ApplicantIncome + CoapplicantIncome + Total_Income_Log + 
+    ##     Loan_Amount_Log + Loan_Term_Year + Credit_History + Property_Area, 
+    ##     family = "binomial", data = new_train)
     ## 
     ## Deviance Residuals: 
     ##     Min       1Q   Median       3Q      Max  
-    ## -2.2901  -0.5171   0.5311   0.6844   2.5321  
+    ## -2.2907  -0.5100   0.5210   0.6931   2.4694  
     ## 
     ## Coefficients:
     ##                          Estimate Std. Error z value Pr(>|z|)    
-    ## (Intercept)             1.172e+01  1.455e+03   0.008 0.993575    
-    ## GenderMale             -3.930e-02  2.975e-01  -0.132 0.894921    
-    ## MarriedYes              5.589e-01  2.599e-01   2.150 0.031533 *  
-    ## Dependents1            -5.658e-01  2.949e-01  -1.918 0.055091 .  
-    ## Dependents2             1.896e-02  3.326e-01   0.057 0.954535    
-    ## Dependents3+           -2.081e-01  4.063e-01  -0.512 0.608534    
-    ## EducationNot Graduate  -3.559e-01  2.595e-01  -1.371 0.170265    
-    ## Self_EmployedYes        1.247e-01  2.839e-01   0.439 0.660362    
-    ## Total_Income_Log       -2.424e-02  2.707e-01  -0.090 0.928639    
-    ## Loan_Amount_Log         7.713e-03  2.969e-01   0.026 0.979276    
-    ## Loan_Term_Year3        -3.081e+01  1.782e+03  -0.017 0.986208    
-    ## Loan_Term_Year5         4.994e-01  1.782e+03   0.000 0.999776    
-    ## Loan_Term_Year7        -1.421e+01  1.455e+03  -0.010 0.992211    
-    ## Loan_Term_Year10       -1.298e+01  1.455e+03  -0.009 0.992883    
-    ## Loan_Term_Year15       -1.366e+01  1.455e+03  -0.009 0.992509    
-    ## Loan_Term_Year20       -1.444e+01  1.455e+03  -0.010 0.992083    
-    ## Loan_Term_Year25       -1.349e+01  1.455e+03  -0.009 0.992604    
-    ## Loan_Term_Year30       -1.389e+01  1.455e+03  -0.010 0.992386    
-    ## Loan_Term_Year40       -1.510e+01  1.455e+03  -0.010 0.991719    
-    ## Credit_History          3.181e+00  3.060e-01  10.396  < 2e-16 ***
-    ## Property_AreaSemiurban  9.790e-01  2.684e-01   3.648 0.000264 ***
-    ## Property_AreaUrban      3.261e-01  2.639e-01   1.236 0.216526    
+    ## (Intercept)             7.742e+00  1.455e+03   0.005 0.995756    
+    ## GenderMale             -3.455e-02  3.013e-01  -0.115 0.908705    
+    ## MarriedYes              5.608e-01  2.614e-01   2.145 0.031927 *  
+    ## Dependents1            -6.033e-01  2.965e-01  -2.034 0.041920 *  
+    ## Dependents2             2.010e-03  3.328e-01   0.006 0.995181    
+    ## Dependents3+           -2.021e-01  4.170e-01  -0.485 0.627892    
+    ## EducationNot Graduate  -3.481e-01  2.599e-01  -1.340 0.180381    
+    ## Self_EmployedYes        9.773e-02  2.854e-01   0.342 0.732015    
+    ## ApplicantIncome        -3.898e-05  3.664e-05  -1.064 0.287373    
+    ## CoapplicantIncome      -9.217e-05  5.691e-05  -1.620 0.105324    
+    ## Total_Income_Log        5.109e-01  4.751e-01   1.075 0.282245    
+    ## Loan_Amount_Log        -7.196e-02  3.034e-01  -0.237 0.812528    
+    ## Loan_Term_Year3        -3.066e+01  1.782e+03  -0.017 0.986268    
+    ## Loan_Term_Year5         5.240e-01  1.780e+03   0.000 0.999765    
+    ## Loan_Term_Year7        -1.411e+01  1.455e+03  -0.010 0.992265    
+    ## Loan_Term_Year10       -1.287e+01  1.455e+03  -0.009 0.992944    
+    ## Loan_Term_Year15       -1.356e+01  1.455e+03  -0.009 0.992566    
+    ## Loan_Term_Year20       -1.442e+01  1.455e+03  -0.010 0.992094    
+    ## Loan_Term_Year25       -1.334e+01  1.455e+03  -0.009 0.992686    
+    ## Loan_Term_Year30       -1.380e+01  1.455e+03  -0.009 0.992434    
+    ## Loan_Term_Year40       -1.498e+01  1.455e+03  -0.010 0.991790    
+    ## Credit_History1         3.165e+00  3.062e-01  10.334  < 2e-16 ***
+    ## Property_AreaSemiurban  9.939e-01  2.696e-01   3.686 0.000227 ***
+    ## Property_AreaUrban      3.586e-01  2.661e-01   1.347 0.177851    
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
     ## (Dispersion parameter for binomial family taken to be 1)
     ## 
     ##     Null deviance: 762.89  on 613  degrees of freedom
-    ## Residual deviance: 564.53  on 592  degrees of freedom
-    ## AIC: 608.53
+    ## Residual deviance: 561.75  on 590  degrees of freedom
+    ## AIC: 609.75
     ## 
     ## Number of Fisher Scoring iterations: 14
 
-Again AIC is lower than our base model when we used the log of Total Income and Loan Amount. Therefore we will use the base model for predicting the test set
+Again AIC increased than our previous model when we used the log transformed variables.<br /> Lets make a model using only the most important variables. <br /> We will select variables which have p-value less than 0.05.
 
-### Predicting the loan status for test dataset
+``` r
+Model4 <- glm(Loan_Status ~ Married + Dependents + Credit_History + Property_Area ,data = new_train, family = "binomial")
+
+summary(Model4)
+```
+
+    ## 
+    ## Call:
+    ## glm(formula = Loan_Status ~ Married + Dependents + Credit_History + 
+    ##     Property_Area, family = "binomial", data = new_train)
+    ## 
+    ## Deviance Residuals: 
+    ##     Min       1Q   Median       3Q      Max  
+    ## -2.1682  -0.5400   0.5791   0.6921   2.2594  
+    ## 
+    ## Coefficients:
+    ##                        Estimate Std. Error z value Pr(>|z|)    
+    ## (Intercept)            -2.47136    0.35741  -6.915 4.69e-12 ***
+    ## MarriedYes              0.63269    0.23513   2.691 0.007129 ** 
+    ## Dependents1            -0.61937    0.28493  -2.174 0.029724 *  
+    ## Dependents2            -0.01312    0.32793  -0.040 0.968096    
+    ## Dependents3+           -0.18040    0.39753  -0.454 0.649975    
+    ## Credit_History1         3.15886    0.29783  10.606  < 2e-16 ***
+    ## Property_AreaSemiurban  0.93019    0.26081   3.567 0.000362 ***
+    ## Property_AreaUrban      0.38046    0.25448   1.495 0.134903    
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## (Dispersion parameter for binomial family taken to be 1)
+    ## 
+    ##     Null deviance: 762.89  on 613  degrees of freedom
+    ## Residual deviance: 578.96  on 606  degrees of freedom
+    ## AIC: 594.96
+    ## 
+    ## Number of Fisher Scoring iterations: 4
+
+As we can see the AIC has decreased and we shall use this model to predict for our test data. <br /> The most important variables are:-<br /> 1\] Credit History <br /> 2\] Property Area <br /> 3\] Marital Status <br /> 4\] Dependents <br />
+
+### Evaluating accuracy of Logistic Regression model
+
+Lets check the accuracy of the model before we predict for test data. <br />
+
+The ce() function from Metrics library allows us to compute classification error.
+
+``` r
+library(Metrics)
+selfpredict <- predict(Model4,type = "response")
+Loan_Status <- ifelse(selfpredict > 0.5,"Y","N")
+
+ce(new_train$Loan_Status,Loan_Status)
+```
+
+    ## [1] 0.1938111
+
+Thus we can see that our model has predicted about 81% of response correctly.
+
+### Predicting the loan status for test dataset using Logistic Regression Model
 
 The predict function returns the probability instead of actual levels. <br /> Therefore we shall store it as a variable in test set and use it to determine the loan status.
 
 ``` r
-new_test$prediction <- predict(BaseModel,newdata = new_test,type = "response")
+new_test$prediction <- predict(Model4,newdata = new_test,type = "response")
     
 new_test$Loan_Status <- ifelse(new_test$prediction > 0.5,"Y","N")
 ```
@@ -731,4 +787,90 @@ write.csv(MyPredicition,"MyPrediction.csv",row.names = FALSE,quote = FALSE)
 ```
 
 On submitting the prediction, we found out that 78% of our values we predicted for loan status were correct.
-<br /> <br /> <br />
+<br />
+
+Lets try a model using K-Nearest Neighbor algorithm.
+
+Using K Nearest Neighbor Model
+==============================
+
+We shall assign train set to different variable for KNN model in case we need to revert back to original train set.
+
+``` r
+library(plyr)
+library(dplyr)
+
+knn_train <- new_train %>% select(Gender,Married,Dependents,Education,Self_Employed,ApplicantIncome,CoapplicantIncome,Total_Income,Loan_Term_Year,LoanAmount,Credit_History,Property_Area,Loan_Status)
+```
+
+We shall use the caret (Classification and Regression Training) library to train our KNN model. For resampling we will use 10 fold cross validation. This is set by trainControl() method. <br />
+
+KNN requires its continuous variables to be normalized and therefore we will set preProcess parameter to "center" and "scale". <br />
+
+We can use various values of K (Number of Nearest Neighbors) by setting tuneGrid parameter and thus it is set to sequence from 3 to 25 in steps of 2. <br /> Optimal value of K for model will be selected based on accuracy
+
+``` r
+library(caret)
+
+set.seed(999)
+trctrl <- trainControl(method = "cv", number = 10)
+
+knn_fit <- train(Loan_Status ~., data = knn_train, method = "knn",
+                   trControl=trctrl,
+                  preProcess = c("center", "scale"),tuneGrid = data.frame(.k = seq(3,25,2))) 
+
+knn_fit
+```
+
+    ## k-Nearest Neighbors 
+    ## 
+    ## 614 samples
+    ##  12 predictor
+    ##   2 classes: 'N', 'Y' 
+    ## 
+    ## Pre-processing: centered (23), scaled (23) 
+    ## Resampling: Cross-Validated (10 fold) 
+    ## Summary of sample sizes: 553, 552, 553, 551, 553, 552, ... 
+    ## Resampling results across tuning parameters:
+    ## 
+    ##   k   Accuracy   Kappa    
+    ##    3  0.7574140  0.3826761
+    ##    5  0.7671980  0.3862107
+    ##    7  0.7736761  0.3941477
+    ##    9  0.7688365  0.3725090
+    ##   11  0.7655834  0.3546121
+    ##   13  0.7557218  0.3192502
+    ##   15  0.7509359  0.2964415
+    ##   17  0.7510400  0.2925684
+    ##   19  0.7444562  0.2641606
+    ##   21  0.7412039  0.2531912
+    ##   23  0.7379253  0.2389417
+    ##   25  0.7363388  0.2282902
+    ## 
+    ## Accuracy was used to select the optimal model using  the largest value.
+    ## The final value used for the model was k = 7.
+
+Model accuracy is highest (77%) when K = 7. But inspite that it is less than Logistic Regression model. <br /> Nonetheless it is close enough to the accuracy of glm model and hence shall see how our KNN model performs on test dataset. <br />
+
+Accuracy for different values of K can be visualized in the graph below.
+
+``` r
+plot(knn_fit)
+```
+
+![](LoanPrediction_files/figure-markdown_github/unnamed-chunk-44-1.png)
+
+### Predicting the Loan Status for Test dataset using K Nearest Neighbor Model
+
+``` r
+new_testknn <- new_test %>% select(Gender,Married,Dependents,Education,Self_Employed,ApplicantIncome,CoapplicantIncome,Total_Income,Loan_Term_Year,LoanAmount,Credit_History,Property_Area,Loan_Status)
+
+predictknn <- predict(knn_fit,newdata = new_testknn)
+MyPredicition <- cbind(new_test["Loan_ID"],predictknn)
+ 
+names(MyPredicition)[2] <- "Loan_Status"
+write.csv(MyPredicition,"MyCaretKNN.csv",row.names = FALSE,quote = FALSE)
+```
+
+On submitting the prediction, we found out that 75% of values predicted by KNN were correct compared to 77% of logistic regression model. <br /> <br /> <br />
+
