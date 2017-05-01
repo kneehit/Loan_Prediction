@@ -1,9 +1,9 @@
 Loan Prediction
 ================
-Nihit R. Save
-13th February 2017
+**Author - Nihit R. Save** <br />
+**Date - 13th February 2017** <br />
 
-Dataset: <https://datahack.analyticsvidhya.com/contest/practice-problem-loan-prediction-iii/>
+**Dataset:** <https://datahack.analyticsvidhya.com/contest/practice-problem-loan-prediction-iii/> 
 
 Data Exploration
 ================
@@ -598,7 +598,21 @@ summary(BaseModel)
     ## 
     ## Number of Fisher Scoring iterations: 14
 
-From above summary we can see that Number of Dependants,Marriage Status,Credit History and Property Area are major deciding factors to predict loan status. <br /> To judge if our subsequent models perform better than our base model we will use AIC which penalizes models for adding irrelevant variables.
+From above summary we can see that Number of Dependants,Marriage Status,Credit History and Property Area are major deciding factors to predict loan status. <br /> To judge if our subsequent models perform better than our base model we will use Accuracy and AIC which penalizes models for adding irrelevant variables.
+
+Lets check the accuracy of our base model before we move on to the next. <br /> The ce() function from Metrics library allows us to compute classification error.
+
+``` r
+library(Metrics)
+selfpredict <- predict(BaseModel,type = "response")
+Loan_Status <- ifelse(selfpredict > 0.5,"Y","N")
+
+ce(new_train$Loan_Status,Loan_Status)
+```
+
+    ## [1] 0.1856678
+
+We can see that about 19% of values were misclassified giving us accuracy of 81%.
 
 ``` r
 Model2 <- glm(Loan_Status ~ Gender + Married + Dependents + Education + Self_Employed + ApplicantIncome + CoapplicantIncome + Ratio + Loan_Term_Year + Credit_History + Property_Area,data = new_train, family = "binomial")
@@ -654,7 +668,18 @@ summary(Model2)
     ## 
     ## Number of Fisher Scoring iterations: 14
 
-There wasn't any significant change in AIC when we added Ratio variable and also the p-value associated with Ratio is much greater than 0.05. <br /> Thus we can conclude that Ratio is an insignificant variable. <br /> Lets try using log transformed variables.
+``` r
+selfpredict <- predict(Model2,type = "response")
+Loan_Status <- ifelse(selfpredict > 0.5,"Y","N")
+
+ce(new_train$Loan_Status,Loan_Status)
+```
+
+    ## [1] 0.1856678
+
+There wasn't any significant change in AIC as well as accuracy when we added the Ratio variable and also the p-value associated with Ratio is much greater than 0.05. <br /> Thus we can conclude that Ratio is an insignificant variable. <br />
+
+Lets try using log transformed variables.
 
 ``` r
 Model3 <- glm(Loan_Status ~ Gender + Married + Dependents + Education + Self_Employed + ApplicantIncome + CoapplicantIncome + Total_Income_Log + Loan_Amount_Log + Loan_Term_Year + Credit_History + Property_Area,data = new_train, family = "binomial")
@@ -710,7 +735,18 @@ summary(Model3)
     ## 
     ## Number of Fisher Scoring iterations: 14
 
-Again AIC increased than our previous model when we used the log transformed variables.<br /> Lets make a model using only the most important variables. <br /> We will select variables which have p-value less than 0.05.
+``` r
+selfpredict <- predict(Model3,type = "response")
+Loan_Status <- ifelse(selfpredict > 0.5,"Y","N")
+
+ce(new_train$Loan_Status,Loan_Status)
+```
+
+    ## [1] 0.1856678
+
+The accuracy remained same while AIC increased than our previous model when we used the log transformed variables hence they seem insignificant.<br />
+
+Lets make a model using only the most important variables. <br /> We will select variables which have p-value less than 0.05.
 
 ``` r
 Model4 <- glm(Loan_Status ~ Married + Dependents + Credit_History + Property_Area ,data = new_train, family = "binomial")
@@ -748,16 +784,7 @@ summary(Model4)
     ## 
     ## Number of Fisher Scoring iterations: 4
 
-As we can see the AIC has decreased and we shall use this model to predict for our test data. <br /> The most important variables are:-<br /> 1\] Credit History <br /> 2\] Property Area <br /> 3\] Marital Status <br /> 4\] Dependents <br />
-
-### Evaluating accuracy of Logistic Regression model
-
-Lets check the accuracy of the model before we predict for test data. <br />
-
-The ce() function from Metrics library allows us to compute classification error.
-
 ``` r
-library(Metrics)
 selfpredict <- predict(Model4,type = "response")
 Loan_Status <- ifelse(selfpredict > 0.5,"Y","N")
 
@@ -766,7 +793,9 @@ ce(new_train$Loan_Status,Loan_Status)
 
     ## [1] 0.1938111
 
-Thus we can see that our model has predicted about 81% of response correctly.
+Even though the accuracy has decreased slightly, we can see the AIC has decreased significantly and we shall use this model to predict for our test data . <br />
+
+The most important variables are:-<br /> 1\] Credit History <br /> 2\] Property Area <br /> 3\] Marital Status <br /> 4\] Dependents <br />
 
 ### Predicting the loan status for test dataset using Logistic Regression Model
 
@@ -858,7 +887,7 @@ Accuracy for different values of K can be visualized in the graph below.
 plot(knn_fit)
 ```
 
-![](LoanPrediction_files/figure-markdown_github/unnamed-chunk-44-1.png)
+![](LoanPrediction_files/figure-markdown_github/unnamed-chunk-47-1.png)
 
 ### Predicting the Loan Status for Test dataset using K Nearest Neighbor Model
 
@@ -872,6 +901,4 @@ names(MyPredicition)[2] <- "Loan_Status"
 write.csv(MyPredicition,"MyCaretKNN.csv",row.names = FALSE,quote = FALSE)
 ```
 
-On submitting the prediction, we found out that 75% of values predicted by KNN were correct compared to 77% of logistic regression model. <br /> <br /> <br />
-
-
+On submitting the prediction, we found out that 75% of values predicted by KNN on the test dataset were correct compared to 77% of logistic regression model. <br /> <br /> <br />
