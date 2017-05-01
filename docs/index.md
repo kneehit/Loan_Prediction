@@ -908,7 +908,8 @@ knn_fit
     ## Accuracy was used to select the optimal model using  the largest value.
     ## The final value used for the model was k = 7.
 
-Model accuracy is highest (77%) when K = 7. But inspite that it is less than Logistic Regression model. <br /> Nonetheless it is close enough to the accuracy of glm model and hence shall see how our KNN model performs on test dataset. <br />
+Model accuracy is highest (77%) when K = 7. But inspite that it is less than Logistic Regression model. <br /> 
+Nonetheless it is close enough to the accuracy of glm model and hence shall see how our KNN model performs on test dataset. <br />
 
 Accuracy for different values of K can be visualized in the graph below.
 
