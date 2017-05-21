@@ -145,7 +145,7 @@ Total Income and Loan Status
 ggplot(na.omit(train),aes(x = ApplicantIncome + CoapplicantIncome)) + geom_histogram(col = "black",position = "dodge",bins = 20,aes(fill = Loan_Status))+scale_x_continuous(breaks = seq(0,20000,2000),limits = c(0,20000)) + scale_y_continuous(breaks = seq(0,90,10)) +xlab("Total Income") + ylab("Number of people") + scale_fill_discrete(name="Loan Acceptance Status",labels = c("No","Yes"))
 ```
 
-![](LoanPrediction_files/figure-markdown_github/unnamed-chunk-7-1.png)
+![](LoanPrediction_files/figure-markdown_github/unnamed-chunk-7-12.png)
 
 Conclusion: The proportion of people whose loan is accepted increases with the total salary.Thus we can say that total income of applicants play important role in whether the loan is accepted or not.
 
@@ -165,7 +165,7 @@ Property Area
 ggplot(na.omit(train),aes(x = LoanAmount,fill = Loan_Status)) + geom_bar(stat = "count",binwidth = 25,position = "dodge",col = "black") + facet_wrap(~Property_Area) + scale_x_continuous(limits = c(0,600),breaks = seq(0,600,50)) + scale_y_continuous(breaks = seq(0,50,5)) + ylab("Number of people") + xlab("Loan Amount") + scale_fill_discrete(name="Loan Acceptance Status",labels = c("No","Yes")) + ggtitle("Loan Acceptance Status by Type of Property Area and Loan Amount ")
 ```
 
-![](LoanPrediction_files/figure-markdown_github/unnamed-chunk-9-1.png)
+![](LoanPrediction_files/figure-markdown_github/unnamed-chunk-9-12.png)
 
 Conclusion: The proportion of people who get their loan accepted for semiurban or urban property is far more than for rural property for the respective loan amount.It could be due to the fact that rural property cost less than semiurban or urban property and less loan is expected to be taken by customers.
 
